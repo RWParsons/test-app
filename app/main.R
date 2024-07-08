@@ -9,7 +9,7 @@ box::use(
 ui <- function(id) {
   ns <- NS(id)
   bootstrapPage(
-    sliderInput("slider", "min value:", value = 0, min = -3, max = 3),
+    sliderInput(ns("slider"), "min value:", value = 0, min = -3, max = 3),
     mapgl$mapboxglOutput(ns("map"))
   )
 }
@@ -33,7 +33,8 @@ server <- function(id) {
     })
     
     observe({
-      mapgl$mapboxgl_proxy(ns("map")) |>
+      newProxy("map") |>
+      # mapgl$mapboxgl_proxy(ns("map")) |> # also works if using the ns()
         mapgl$set_filter(
           "polygon_layer",
           list(">=", mapgl$get_column("measure"), input$slider)
@@ -41,4 +42,23 @@ server <- function(id) {
     })
     
   })
+}
+
+
+
+newProxy <- function(mapId, session = shiny::getDefaultReactiveDomain()){
+  browser()
+  if (is.null(session)) {
+    stop("leafletProxy must be called from the server function of a Shiny app")
+  }
+  if (!is.null(session$ns) && nzchar(session$ns(NULL)) && substring(mapId, 1, nchar(session$ns(""))) != session$ns("")) {
+    mapId <- session$ns(mapId)
+  }
+  structure(
+    list(
+      session = session, 
+      id = mapId
+    ), 
+    class = "mapboxgl_proxy"
+  )
 }
