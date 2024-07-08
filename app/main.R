@@ -1,5 +1,5 @@
 box::use(
-  shiny[bootstrapPage, div, moduleServer, NS, renderUI, tags, uiOutput, sliderInput, observe],
+  shiny[...],
   mapgl,
   strayr,
   dplyr,
@@ -20,6 +20,9 @@ server <- function(id) {
     map_shapes <- strayr$read_absmap("sa32021")
     map_shapes$measure <- stats::rnorm(n = nrow(map_shapes))
     
+    ns <- NS(id)
+    cat(ns('map'))
+    
     output$map <- mapgl$renderMapboxgl({
       mapgl$mapboxgl(mapgl$mapbox_style("streets")) |>
         mapgl$fit_bounds(map_shapes, animate = FALSE) |>
@@ -30,9 +33,11 @@ server <- function(id) {
     })
     
     observe({
-      mapgl$mapboxgl_proxy("map") |>
-        mapgl$set_filter("polygon_layer",
-                         list(">=", mapgl$get_column("measure"), input$slider))
+      mapgl$mapboxgl_proxy(ns("map")) |>
+        mapgl$set_filter(
+          "polygon_layer",
+          list(">=", mapgl$get_column("measure"), input$slider)
+        )
     })
     
   })
