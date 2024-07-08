@@ -49,7 +49,7 @@ server <- function(id) {
 newProxy <- function(mapId, session = shiny::getDefaultReactiveDomain()){
   browser()
   if (is.null(session)) {
-    stop("leafletProxy must be called from the server function of a Shiny app")
+    stop("mapboxgl_proxy must be called from the server function of a Shiny app")
   }
   if (!is.null(session$ns) && nzchar(session$ns(NULL)) && substring(mapId, 1, nchar(session$ns(""))) != session$ns("")) {
     mapId <- session$ns(mapId)
